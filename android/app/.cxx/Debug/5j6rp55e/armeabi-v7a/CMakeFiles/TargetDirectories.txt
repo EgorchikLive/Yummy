@@ -1,0 +1,2 @@
+/Users/egor/Documents/GitHub/Yummy/android/app/.cxx/Debug/5j6rp55e/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/egor/Documents/GitHub/Yummy/android/app/.cxx/Debug/5j6rp55e/armeabi-v7a/CMakeFiles/rebuild_cache.dir

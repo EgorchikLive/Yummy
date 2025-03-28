@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:yummy/assets/theme/pallete.dart';
 import 'package:yummy/widgets/heart_button.dart';

@@ -20,7 +20,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int selectedIndex = 0;
   final pages = [
-    MainPage(),
+    const MainPage(),
     const ActionsPage(),
     const CheckoutPage(),
     const LikePage(),
