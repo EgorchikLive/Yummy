@@ -69,6 +69,48 @@ class AuthService {
       Get.snackbar('Error', e.toString(), colorText: Colors.red);
     }
   }
+
+  Future<void> signIn({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      // Пытаемся войти пользователя с email и паролем
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // При успешном входе показываем сообщение
+      Get.snackbar('Success', 'Logged in successfully!',
+          colorText: Colors.green);
+    } on FirebaseAuthException catch (e) {
+      // Обработка ошибок входа
+      String message = '';
+      switch (e.code) {
+        case 'invalid-email':
+          message = 'The email address is not valid.';
+          break;
+        case 'user-disabled':
+          message = 'This user has been disabled.';
+          break;
+        case 'user-not-found':
+          message = 'No user found with this email.';
+          break;
+        case 'wrong-password':
+          message = 'Wrong password provided.';
+          break;
+        default:
+          message = e.message ?? 'An unknown error occurred.';
+      }
+
+      // Показываем ошибку через Snackbar
+      Get.snackbar('Error', message, colorText: Colors.red);
+    } catch (e) {
+      // Обработка прочих ошибок
+      Get.snackbar('Error', e.toString(), colorText: Colors.red);
+    }
+  }
 }
 
 // class AuthService {

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:yummy/assets/theme/pallete.dart';
 import 'package:yummy/pages/menu_page.dart';
+import 'package:yummy/pages/user_page.dart';
 
+import '../services/auth_storage_service.dart';
 import 'main_page.dart';
 import 'account_page.dart';
 import 'actions_page.dart';
@@ -19,13 +21,49 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int selectedIndex = 0;
-  final pages = [
-    const MainPage(),
-    const ActionsPage(),
-    const CheckoutPage(),
-    const LikePage(),
-    const AccountPage(),
-  ];
+  bool isLoggedIn = false; // Добавляем состояние авторизации
+  final AuthStorageService _authStorage = AuthStorageService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLoginState();
+  }
+
+  Future<void> _loadLoginState() async {
+    final savedState = await _authStorage.getLoginState();
+    setState(() {
+      isLoggedIn = savedState;
+    });
+  }
+
+  Future<void> toggleLoginStatus() async {
+    setState(() {
+      isLoggedIn = !isLoggedIn;
+    });
+    await _authStorage.saveLoginState(isLoggedIn);
+  }
+
+  Future<void> logout() async {
+    setState(() {
+      isLoggedIn = false;
+    });
+    await _authStorage.clearLoginState();
+    // Дополнительно: очистка контроллеров или других данных
+  }
+
+  // Модифицируем список страниц
+  // В HomePage измените pages:
+  List<Widget> get pages => [
+      const MainPage(),
+      const ActionsPage(),
+      const CheckoutPage(),
+      const LikePage(),
+      isLoggedIn 
+          ? const UserPage() 
+          : AccountPage(onLoginSuccess: toggleLoginStatus),
+    ];
+
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
@@ -45,37 +83,37 @@ class _HomePageState extends State<HomePage> {
         ),
         body: pages[selectedIndex],
         bottomNavigationBar: BottomNavigationBar(
-            // type: BottomNavigationBarType.fixed,
-            unselectedItemColor: Pallete.gray,
-            fixedColor: Pallete.orange,
-            currentIndex: selectedIndex,
-            onTap: (value) {
-              setState(() {
-                selectedIndex = value;
-              });
-            },
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: 'Главная',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(CupertinoIcons.checkmark_seal),
-                label: 'Акции',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.shopping_cart),
-                label: 'Корзина',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(CupertinoIcons.heart),
-                label: 'Избранное',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.account_circle_sharp),
-                label: 'Аккаунт',
-              ),
-            ]),
+          unselectedItemColor: Pallete.gray,
+          fixedColor: Pallete.orange,
+          currentIndex: selectedIndex,
+          onTap: (value) {
+            setState(() {
+              selectedIndex = value;
+            });
+          },
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Главная',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.checkmark_seal),
+              label: 'Акции',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_cart),
+              label: 'Корзина',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.heart),
+              label: 'Избранное',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.account_circle_sharp),
+              label: 'Аккаунт',
+            ),
+          ],
+        ),
       ),
     );
   }
