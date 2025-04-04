@@ -8,11 +8,8 @@ import 'package:yummy/provider/theme_provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: firebaseOptions);
-  // Get.put(AuthService());
-  // Загружаем состояние темы перед запуском приложения
   bool isDarkMode = await ThemeProvider.loadThemeState();
-
-  runApp(MyApp(isDarkMode: isDarkMode)); // Передаем состояние темы в приложение
+  runApp(MyApp(isDarkMode: isDarkMode));
 }
 
 class MyApp extends StatefulWidget {
@@ -37,9 +34,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Yummy',
-      themeMode: _isDarkMode
-          ? ThemeMode.dark
-          : ThemeMode.light, // Используем выбранную тему
+      themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
       theme: AppTheme.lightThemeMode, // Светлая тема
       darkTheme: AppTheme.darkThemeMode, // Тёмная тема
       home: DrawerWidget(
@@ -48,7 +43,6 @@ class _MyAppState extends State<MyApp> {
           setState(() {
             _isDarkMode = value;
           });
-          // Сохраняем выбранную тему при изменении
           ThemeProvider.saveThemeState(_isDarkMode);
         },
       ),

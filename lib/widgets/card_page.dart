@@ -20,7 +20,6 @@ class CardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Получаем текущую тему
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDarkMode ? Colors.white : Colors.black;
     const priceTextColor = Pallete.orange;
@@ -56,19 +55,18 @@ class CardPage extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(right: 8.0, top: 8.0),
                         child: SizedBox(
-                          height: 48.0, // Фиксированная ширина
+                          height: 48.0,
                           child: RichText(
                             text: TextSpan(
                               text: name,
                               style: TextStyle(
                                 fontSize: 20.0,
-                                color: textColor, // Цвет текста зависит от темы
+                                color: textColor,
                               ),
                             ),
-                            softWrap: true, // Разрешаем перенос текста
-                            maxLines: 2, // Ограничиваем текст 3 строками
-                            overflow: TextOverflow
-                                .ellipsis, // Если текст не помещается, добавляем многоточие
+                            softWrap: true,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ),
@@ -88,21 +86,17 @@ class CardPage extends StatelessWidget {
                                     fontSize: 10,
                                   ),
                                 ),
-                              if (discount > 0)
-                                const SizedBox(
-                                    width: 4), // Расстояние между ценами
+                              if (discount > 0) const SizedBox(width: 4),
                               Text(
                                 discount > 0
                                     ? '${(price * (1 - discount)).toStringAsFixed(2)} руб'
                                     : '$price руб',
                                 style: TextStyle(
-                                  color: discount > 0
-                                      ? priceTextColor // Цвет текста зависит от темы
-                                      : textColor, // Цвет текста зависит от темы
+                                  color:
+                                      discount > 0 ? priceTextColor : textColor,
                                   fontWeight: discount > 0
                                       ? FontWeight.w600
-                                      : FontWeight
-                                          .normal, // Установка веса шрифта в зависимости от скидки
+                                      : FontWeight.normal,
                                 ),
                               ),
                             ],

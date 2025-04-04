@@ -1,7 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yummy/widgets/card_page.dart';
-import 'package:yummy/pages/test_list.dart';
 
 class LikePage extends StatefulWidget {
   const LikePage({super.key});
@@ -19,15 +19,26 @@ class _LikePageState extends State<LikePage> {
     _loadLikedItems();
   }
 
-  // Загрузка избранных товаров из SharedPreferences
-  _loadLikedItems() async {
+  // Загрузка всех товаров из Firestore и фильтрация избранных
+  Future<void> _loadLikedItems() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('foods').get();
+
     List<Map<String, dynamic>> likedItems = [];
 
-    for (var foodItem in foodList) {
-      bool? isLiked = prefs.getBool('isLiked_${foodItem['id']}');
-      if (isLiked == true) {
-        likedItems.add(foodItem); // Добавляем в список, если товар в избранном
+    for (var doc in snapshot.docs) {
+      var data = doc.data() as Map<String, dynamic>;
+      bool? isLiked = prefs.getBool('isLiked_${data['id']}') ?? false;
+
+      if (isLiked) {
+        likedItems.add({
+          'id': data['id'],
+          'name': data['name'],
+          'image': data['image'],
+          'price': data['price'],
+          'discount': data['discount'],
+        });
       }
     }
 
@@ -49,9 +60,8 @@ class _LikePageState extends State<LikePage> {
                   id: likedFoodList[index]['id']!,
                   name: likedFoodList[index]['name']!,
                   imageUrl: likedFoodList[index]['image']!,
-                  price: int.parse(likedFoodList[index]['price']!.toString()),
-                  discount: double.parse(
-                      likedFoodList[index]['discount']!.toString()),
+                  price: likedFoodList[index]['price']!,
+                  discount: likedFoodList[index]['discount']!,
                 );
               },
             ),

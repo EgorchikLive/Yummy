@@ -13,7 +13,9 @@ import 'checkout_page.dart';
 import 'like_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final int selectedIndex;
+
+  const HomePage({super.key, this.selectedIndex = 0});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -27,6 +29,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    selectedIndex = widget.selectedIndex;
     _loadLoginState();
   }
 
@@ -55,14 +58,14 @@ class _HomePageState extends State<HomePage> {
   // Модифицируем список страниц
   // В HomePage измените pages:
   List<Widget> get pages => [
-      const MainPage(),
-      const ActionsPage(),
-      const CheckoutPage(),
-      const LikePage(),
-      isLoggedIn 
-          ? const UserPage() 
-          : AccountPage(onLoginSuccess: toggleLoginStatus),
-    ];
+        const MainPage(),
+        const ActionsPage(),
+        const CheckoutPage(),
+        const LikePage(),
+        isLoggedIn
+            ? const UserPage()
+            : AccountPage(onLoginSuccess: toggleLoginStatus),
+      ];
 
   @override
   Widget build(BuildContext context) {
