@@ -1,10 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Для Firestore
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
-import 'package:flutter/material.dart';
 
 class AuthService {
-  Future<void> register({
+  Future<bool> register({
     required String email,
     required String password,
     required String username,
@@ -33,44 +32,25 @@ class AuthService {
           'createdAt': FieldValue.serverTimestamp(),
         });
 
-        // При успешной регистрации и добавлении в базу данных показываем сообщение
-        Get.snackbar('Success', 'User registered and data saved successfully!',
-            colorText: Colors.green);
+        // Если все прошло успешно, возвращаем true
+        return true;
       } catch (e) {
-        // Обработка ошибок Firestore
-        Get.snackbar('Firestore Error', 'Failed to save user data: $e',
-            colorText: Colors.red);
+        // Ошибка при добавлении в Firestore
+        print('Firestore Error: $e');
+        return false;
       }
     } on FirebaseAuthException catch (e) {
       // Обработка ошибок регистрации
-      String message = '';
-      switch (e.code) {
-        case 'weak-password':
-          message = 'The password provided is too weak.';
-          break;
-        case 'email-already-in-use':
-          message = 'An account already exists with that email.';
-          break;
-        case 'invalid-email':
-          message = 'The email address is not valid.';
-          break;
-        case 'operation-not-allowed':
-          message =
-              'Email/password accounts are not enabled. Please enable them in the Firebase Console.';
-          break;
-        default:
-          message = e.message ?? 'An unknown error occurred.';
-      }
-
-      // Показываем ошибку через Snackbar
-      Get.snackbar('Error', message, colorText: Colors.red);
+      print('Registration Error: ${e.message}');
+      return false;
     } catch (e) {
       // Обработка прочих ошибок
-      Get.snackbar('Error', e.toString(), colorText: Colors.red);
+      print('Error: $e');
+      return false;
     }
   }
 
-  Future<void> signIn({
+  Future<bool> signIn({
     required String email,
     required String password,
   }) async {
@@ -81,34 +61,16 @@ class AuthService {
         password: password,
       );
 
-      // При успешном входе показываем сообщение
-      Get.snackbar('Success', 'Logged in successfully!',
-          colorText: Colors.green);
+      // Если все прошло успешно, возвращаем true
+      return true;
     } on FirebaseAuthException catch (e) {
-      // Обработка ошибок входа
-      String message = '';
-      switch (e.code) {
-        case 'invalid-email':
-          message = 'The email address is not valid.';
-          break;
-        case 'user-disabled':
-          message = 'This user has been disabled.';
-          break;
-        case 'user-not-found':
-          message = 'No user found with this email.';
-          break;
-        case 'wrong-password':
-          message = 'Wrong password provided.';
-          break;
-        default:
-          message = e.message ?? 'An unknown error occurred.';
-      }
-
-      // Показываем ошибку через Snackbar
-      Get.snackbar('Error', message, colorText: Colors.red);
+      // Ошибка при входе
+      print('Sign In Error: ${e.message}');
+      return false;
     } catch (e) {
-      // Обработка прочих ошибок
-      Get.snackbar('Error', e.toString(), colorText: Colors.red);
+      // Прочие ошибки
+      print('Error: $e');
+      return false;
     }
   }
 }

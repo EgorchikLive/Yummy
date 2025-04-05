@@ -125,11 +125,13 @@ class _HomePageState extends State<HomePage> {
 class DrawerWidget extends StatelessWidget {
   final bool isDarkMode;
   final ValueChanged<bool> onThemeChanged;
+  final int selectedIndex;
 
   const DrawerWidget({
     super.key,
     required this.isDarkMode,
     required this.onThemeChanged,
+    this.selectedIndex = 0,
   });
 
   @override
@@ -137,7 +139,7 @@ class DrawerWidget extends StatelessWidget {
     return ZoomDrawer(
       menuBackgroundColor: Pallete.menu,
       controller: ZoomDrawerController(),
-      mainScreen: const HomePage(),
+      mainScreen: HomePage(selectedIndex: selectedIndex),
       menuScreen: MenuPage(
         isDarkMode: isDarkMode,
         onThemeChanged: onThemeChanged,
@@ -145,3 +147,4 @@ class DrawerWidget extends StatelessWidget {
     );
   }
 }
+

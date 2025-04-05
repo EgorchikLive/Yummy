@@ -92,6 +92,7 @@ class _AccountPageState extends State<AccountPage> {
 }
 
 // Страница Авторизации
+// Страница Авторизации
 class AuthPage extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
@@ -145,14 +146,20 @@ class AuthPage extends StatelessWidget {
               ),
               const SizedBox(height: 18),
               CustomButton(buttonText: 'Войти', onTap: () async {
-                await AuthService().signIn(
+                bool isSuccess = await AuthService().signIn(
                     email: emailController.text,
                     password: passwordController.text,
                   );
-                  onLoginSuccess();
-                  // Navigator.push(context, MaterialPageRoute(
-                  //   builder: (context) => const UserPage()),
-                  // );
+
+                if (isSuccess) {
+                  onLoginSuccess();  // Успешный вход
+                } else {
+                  // Здесь можно добавить логику для вывода сообщения об ошибке
+                  // например, показать Snackbar с текстом ошибки
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Неверный логин или пароль')),
+                  );
+                }
               }),
             ],
           ),
@@ -162,6 +169,8 @@ class AuthPage extends StatelessWidget {
   }
 }
 
+
+// Страница Регистрации
 // Страница Регистрации
 class RegisterPage extends StatelessWidget {
   final TextEditingController nameController;
@@ -231,15 +240,20 @@ class RegisterPage extends StatelessWidget {
               CustomButton(
                 buttonText: 'Зарегистрироваться',
                 onTap: () async {
-                  await AuthService().register(
+                  bool isSuccess = await AuthService().register(
                     username: nameController.text,
                     email: emailController.text,
                     password: passwordController.text,
                   );
-                  onLoginSuccess();
-                  // Navigator.push(context, MaterialPageRoute(
-                  //   builder: (context) => const UserPage()),
-                  // );
+
+                  if (isSuccess) {
+                    onLoginSuccess();  // Успешная регистрация
+                  } else {
+                    // Можно добавить логику для вывода сообщения об ошибке
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Ошибка регистрации')),
+                    );
+                  }
                 },
               ),
             ],

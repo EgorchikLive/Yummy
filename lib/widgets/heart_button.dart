@@ -88,11 +88,15 @@ class _HeartButtonState extends State<HeartButton> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                // Здесь вызываем страницу авторизации
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const HomePage(selectedIndex: 4)),
+                    builder: (context) => DrawerWidget(
+                      isDarkMode: Theme.of(context).brightness == Brightness.dark,
+                      onThemeChanged: (val) {}, // заглушка для смены темы
+                      selectedIndex: 4, // 👉 переход к "Аккаунт"
+                    ),
+                  ),
                   (_) => false,
                 );
               },
