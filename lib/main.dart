@@ -42,9 +42,11 @@ class _MyAppState extends State<MyApp> {
         isDarkMode: _isDarkMode,
         onThemeChanged: (value) {
           setState(() {
-            _isDarkMode = value;
+            _isDarkMode =
+                value; // Обновляем состояние темы в родительском виджете
           });
-          ThemeProvider.saveThemeState(_isDarkMode);
+          ThemeProvider.saveThemeState(
+              _isDarkMode); // Сохраняем выбранное состояние темы
         },
       ),
     );

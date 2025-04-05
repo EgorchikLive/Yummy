@@ -4,10 +4,12 @@ import 'package:yummy/services/auth_service.dart';
 import 'package:yummy/widgets/custom_button.dart';
 import 'package:yummy/widgets/custom_field.dart';
 
-
 class AccountPage extends StatefulWidget {
   final VoidCallback onLoginSuccess;
-  const AccountPage({super.key, required this.onLoginSuccess,});
+  const AccountPage({
+    super.key,
+    required this.onLoginSuccess,
+  });
 
   @override
   State<AccountPage> createState() => _AccountPageState();
@@ -52,13 +54,13 @@ class _AccountPageState extends State<AccountPage> {
               AuthPage(
                 emailController: emailController,
                 passwordController: passwordController,
-                onLoginSuccess: widget.onLoginSuccess, 
+                onLoginSuccess: widget.onLoginSuccess,
               ), // Передаем контроллеры в AuthPage
               RegisterPage(
                 nameController: nameController,
                 emailController: emailController,
                 passwordController: passwordController,
-                onLoginSuccess: widget.onLoginSuccess, 
+                onLoginSuccess: widget.onLoginSuccess,
               ), // Передаем контроллеры в RegisterPage
             ],
           ),
@@ -91,7 +93,6 @@ class _AccountPageState extends State<AccountPage> {
   }
 }
 
-// Страница Авторизации
 // Страница Авторизации
 class AuthPage extends StatelessWidget {
   final TextEditingController emailController;
@@ -145,22 +146,24 @@ class AuthPage extends StatelessWidget {
                 controller: passwordController,
               ),
               const SizedBox(height: 18),
-              CustomButton(buttonText: 'Войти', onTap: () async {
-                bool isSuccess = await AuthService().signIn(
-                    email: emailController.text,
-                    password: passwordController.text,
-                  );
+              CustomButton(
+                  buttonText: 'Войти',
+                  onTap: () async {
+                    bool isSuccess = await AuthService().signIn(
+                      email: emailController.text,
+                      password: passwordController.text,
+                    );
 
-                if (isSuccess) {
-                  onLoginSuccess();  // Успешный вход
-                } else {
-                  // Здесь можно добавить логику для вывода сообщения об ошибке
-                  // например, показать Snackbar с текстом ошибки
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Неверный логин или пароль')),
-                  );
-                }
-              }),
+                    if (isSuccess) {
+                      onLoginSuccess(); // Успешный вход
+                    } else {
+                      // Ошибка авторизации
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Неверный логин или пароль')),
+                      );
+                    }
+                  }),
             ],
           ),
         ),
@@ -168,7 +171,6 @@ class AuthPage extends StatelessWidget {
     );
   }
 }
-
 
 // Страница Регистрации
 // Страница Регистрации
@@ -247,7 +249,7 @@ class RegisterPage extends StatelessWidget {
                   );
 
                   if (isSuccess) {
-                    onLoginSuccess();  // Успешная регистрация
+                    onLoginSuccess(); // Успешная регистрация
                   } else {
                     // Можно добавить логику для вывода сообщения об ошибке
                     ScaffoldMessenger.of(context).showSnackBar(

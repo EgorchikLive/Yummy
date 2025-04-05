@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yummy/widgets/card_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LikePage extends StatefulWidget {
   const LikePage({super.key});
@@ -11,7 +11,8 @@ class LikePage extends StatefulWidget {
 }
 
 class _LikePageState extends State<LikePage> {
-  List<Map<String, dynamic>> likedFoodList = [];
+  List<Map<String, dynamic>> foodList = [];
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -19,49 +20,65 @@ class _LikePageState extends State<LikePage> {
     _loadLikedItems();
   }
 
-  // Загрузка всех товаров из Firestore и фильтрация избранных
+  // Загрузка избранных товаров из Firestore для текущего пользователя
   Future<void> _loadLikedItems() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    QuerySnapshot snapshot =
-        await FirebaseFirestore.instance.collection('foods').get();
+    final user = _auth.currentUser;
 
-    List<Map<String, dynamic>> likedItems = [];
+    if (user != null) {
+      // Получаем все товары из коллекции "favorites" текущего пользователя
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('favorites')
+          .get();
 
-    for (var doc in snapshot.docs) {
-      var data = doc.data() as Map<String, dynamic>;
-      bool? isLiked = prefs.getBool('isLiked_${data['id']}') ?? false;
+      List<Map<String, dynamic>> likedItems = [];
 
-      if (isLiked) {
-        likedItems.add({
-          'id': data['id'],
-          'name': data['name'],
-          'image': data['image'],
-          'price': data['price'],
-          'discount': data['discount'],
-        });
+      for (var doc in snapshot.docs) {
+        // Получаем данные о товаре из основной коллекции
+        var productDoc = await FirebaseFirestore.instance
+            .collection('foods')
+            .doc(doc.id)
+            .get();
+
+        if (productDoc.exists) {
+          var data = productDoc.data() as Map<String, dynamic>;
+          likedItems.add({
+            'id': data['id'],
+            'name': data['name'],
+            'image': data['image'],
+            'price': data['price'],
+            'discount': data['discount'],
+          });
+        }
       }
-    }
 
-    setState(() {
-      likedFoodList = likedItems; // Обновляем состояние с избранными товарами
-    });
+      setState(() {
+        foodList = likedItems; // Обновляем состояние с избранными товарами
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Избранное')),
-      body: likedFoodList.isEmpty
+      body: foodList.isEmpty
           ? const Center(child: Text('Нет избранных товаров'))
           : ListView.builder(
-              itemCount: likedFoodList.length,
+              itemCount: foodList.length,
               itemBuilder: (context, index) {
                 return CardPage(
-                  id: likedFoodList[index]['id']!,
-                  name: likedFoodList[index]['name']!,
-                  imageUrl: likedFoodList[index]['image']!,
-                  price: likedFoodList[index]['price']!,
-                  discount: likedFoodList[index]['discount']!,
+                  id: foodList[index]['id'] ??
+                      '', // Если id равно null, используем пустую строку
+                  name: foodList[index]['name'] ??
+                      'Без названия', // Если name равно null, используем 'Без названия'
+                  imageUrl: foodList[index]['image'] ??
+                      '', // Если image равно null, используем пустую строку
+                  price: foodList[index]['price'] ??
+                      0, // Если price равно null, используем 0
+                  discount: foodList[index]['discount'] ??
+                      0.0, // Если discount равно null, используем 0.0
                 );
               },
             ),

@@ -23,7 +23,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int selectedIndex = 0;
-  bool isLoggedIn = false; // Добавляем состояние авторизации
+  bool isLoggedIn = false; // Состояние авторизации
   final AuthStorageService _authStorage = AuthStorageService();
 
   @override
@@ -52,18 +52,15 @@ class _HomePageState extends State<HomePage> {
       isLoggedIn = false;
     });
     await _authStorage.clearLoginState();
-    // Дополнительно: очистка контроллеров или других данных
   }
 
-  // Модифицируем список страниц
-  // В HomePage измените pages:
   List<Widget> get pages => [
         const MainPage(),
         const ActionsPage(),
         const CheckoutPage(),
         const LikePage(),
         isLoggedIn
-            ? const UserPage()
+            ? UserPage(onLogout: logout) // Передаем функцию logout в UserPage
             : AccountPage(onLoginSuccess: toggleLoginStatus),
       ];
 
@@ -142,9 +139,8 @@ class DrawerWidget extends StatelessWidget {
       mainScreen: HomePage(selectedIndex: selectedIndex),
       menuScreen: MenuPage(
         isDarkMode: isDarkMode,
-        onThemeChanged: onThemeChanged,
+        onThemeChanged: onThemeChanged, // Передаем обработчик изменения темы
       ),
     );
   }
 }
-

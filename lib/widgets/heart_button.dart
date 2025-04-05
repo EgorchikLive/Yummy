@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:yummy/assets/theme/pallete.dart';
-import 'package:yummy/pages/home_page.dart';
 import 'package:yummy/services/auth_storage_service.dart'; // Импортируем сервис для авторизации
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HeartButton extends StatefulWidget {
   final String id; // Уникальный идентификатор товара
@@ -16,9 +16,10 @@ class HeartButton extends StatefulWidget {
 
 class _HeartButtonState extends State<HeartButton> {
   bool isLiked = false;
-  bool isLoggedIn = false; // Добавим флаг авторизации
+  bool isLoggedIn = false;
 
   final AuthStorageService _authStorage = AuthStorageService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -35,27 +36,53 @@ class _HeartButtonState extends State<HeartButton> {
     });
   }
 
-  // Загрузка состояния "лайкнут" из SharedPreferences
+  // Загрузка состояния "лайкнут" из Firestore
   _loadHeartState() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      isLiked = prefs.getBool('isLiked_${widget.id}') ?? false;
-    });
+    final user = _auth.currentUser;
+    if (user != null) {
+      // Проверяем наличие товара в избранном
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('favorites')
+          .doc(widget.id)
+          .get();
+
+      setState(() {
+        isLiked = doc.exists;
+      });
+    }
   }
 
-  // Сохранение состояния "лайкнут" в SharedPreferences
+  // Сохранение состояния "лайкнут" в Firestore
   _saveHeartState(bool value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('isLiked_${widget.id}', value);
+    final user = _auth.currentUser;
+    if (user != null) {
+      final userRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('favorites')
+          .doc(widget.id);
+
+      if (value) {
+        // Добавляем товар в избранное
+        await userRef.set({
+          'id': widget.id,
+        });
+      } else {
+        // Удаляем товар из избранного
+        await userRef.delete();
+      }
+    }
   }
 
-  // Функция для обработки нажатия на кнопку "Лайк"
+  // Обработка нажатия на кнопку "Лайк"
   _onLikePressed() async {
     if (!isLoggedIn) {
       // Если пользователь не авторизован, показываем диалог
       _showLoginDialog();
     } else {
-      // Если авторизован, сохраняем состояние лайка
+      // Если авторизован, сохраняем состояние лайка в Firestore
       setState(() {
         isLiked = !isLiked;
         _saveHeartState(isLiked);
@@ -63,7 +90,7 @@ class _HeartButtonState extends State<HeartButton> {
     }
   }
 
-  // Диалог для предложения авторизации
+  // Диалог для авторизации
   _showLoginDialog() {
     showDialog(
       context: context,
@@ -88,17 +115,6 @@ class _HeartButtonState extends State<HeartButton> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DrawerWidget(
-                      isDarkMode: Theme.of(context).brightness == Brightness.dark,
-                      onThemeChanged: (val) {}, // заглушка для смены темы
-                      selectedIndex: 4, // 👉 переход к "Аккаунт"
-                    ),
-                  ),
-                  (_) => false,
-                );
               },
               child: const Text("Войти"),
             ),
