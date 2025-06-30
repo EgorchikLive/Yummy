@@ -22,6 +22,7 @@ class MainPage extends StatelessWidget {
         'price': data['price'] ?? 0, // Если 'price' равно null, используем 0
         'discount': data['discount'] ??
             0.0, // Если 'discount' равно null, используем 0.0
+        'description': data['description'] ?? '',
       };
     }).toList();
   }
@@ -61,6 +62,8 @@ class MainPage extends StatelessWidget {
                     0, // Если price равно null, используем 0
                 discount: foodList[index]['discount'] ??
                     0.0, // Если discount равно null, используем 0.0
+                description: foodList[index]['description'] ??
+                      '',
               );
             },
           );

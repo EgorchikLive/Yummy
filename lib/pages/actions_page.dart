@@ -18,6 +18,7 @@ class ActionsPage extends StatelessWidget {
             'image': data['image'] ?? '',
             'price': data['price'] ?? 0,
             'discount': data['discount'] ?? 0.0,
+            'description': data['description'] ?? '',
           };
         })
         .where((item) => item['discount'] > 0) // Отбираем товары со скидкой
@@ -53,6 +54,7 @@ class ActionsPage extends StatelessWidget {
                 imageUrl: discountFoodList[index]['image']!,
                 price: discountFoodList[index]['price']!,
                 discount: discountFoodList[index]['discount']!,
+                description: discountFoodList[index]['description']!,
               );
             },
           );

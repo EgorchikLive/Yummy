@@ -79,6 +79,8 @@ class _LikePageState extends State<LikePage> {
                       0, // Если price равно null, используем 0
                   discount: foodList[index]['discount'] ??
                       0.0, // Если discount равно null, используем 0.0
+                  description: foodList[index]['description'] ??
+                      '',
                 );
               },
             ),

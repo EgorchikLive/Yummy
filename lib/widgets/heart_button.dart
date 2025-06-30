@@ -38,20 +38,20 @@ class _HeartButtonState extends State<HeartButton> {
 
   // Загрузка состояния "лайкнут" из Firestore
   _loadHeartState() async {
-    final user = _auth.currentUser;
-    if (user != null) {
-      // Проверяем наличие товара в избранном
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .collection('favorites')
-          .doc(widget.id)
-          .get();
+    // final user = _auth.currentUser;
+    // if (user != null) {
+    //   // Проверяем наличие товара в избранном
+    //   final doc = await FirebaseFirestore.instance
+    //       .collection('users')
+    //       .doc(user.uid)
+    //       .collection('favorites')
+    //       .doc(widget.id)
+    //       .get();
 
-      setState(() {
-        isLiked = doc.exists;
-      });
-    }
+    //   setState(() {
+    //     isLiked = doc.exists;
+    //   });
+    // }
   }
 
   // Сохранение состояния "лайкнут" в Firestore

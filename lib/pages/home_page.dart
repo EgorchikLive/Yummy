@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:yummy/assets/theme/pallete.dart';
+import 'package:yummy/pages/checkout_page.dart';
 import 'package:yummy/pages/menu_page.dart';
 import 'package:yummy/pages/user_page.dart';
 
@@ -9,7 +10,6 @@ import '../services/auth_storage_service.dart';
 import 'main_page.dart';
 import 'account_page.dart';
 import 'actions_page.dart';
-import 'checkout_page.dart';
 import 'like_page.dart';
 
 class HomePage extends StatefulWidget {

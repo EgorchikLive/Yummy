@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yummy/assets/theme/pallete.dart';
+import 'package:yummy/pages/card_page_info.dart';
 import 'package:yummy/widgets/heart_button.dart';
 
 class CardPage extends StatelessWidget {
@@ -8,6 +9,7 @@ class CardPage extends StatelessWidget {
   final String imageUrl;
   final int price;
   final double discount;
+  final String description;
 
   const CardPage({
     super.key,
@@ -16,6 +18,7 @@ class CardPage extends StatelessWidget {
     required this.imageUrl,
     required this.price,
     required this.discount,
+    required this.description,
   });
 
   @override
@@ -25,7 +28,14 @@ class CardPage extends StatelessWidget {
     const priceTextColor = Pallete.orange;
 
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => CardPageInfo(id: id,
+        name: name,
+        imageUrl: imageUrl,
+        price: price,
+        discount: discount,
+        description: description,)));
+      },
       child: Card(
         margin: const EdgeInsets.all(10),
         elevation: 5,
