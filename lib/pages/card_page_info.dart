@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yummy/assets/theme/pallete.dart';
+import 'package:yummy/widgets/cart_button_info.dart';
 import 'package:yummy/widgets/heart_button.dart';
 
 class CardPageInfo extends StatelessWidget {
@@ -102,24 +103,31 @@ class CardPageInfo extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 HeartButton(id: id),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // здесь можно добавить логику добавления в корзину
-                  },
-                  icon: const Icon(Icons.shopping_cart),
-                  label: Text(
-                    discount > 0
-                        ? '${(price * (1 - discount)).toStringAsFixed(2)} руб'
-                        : '$price руб',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Pallete.orange,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
-                  ),
+                CartElevatedButton(
+                  id: id,
+                  name: name,
+                  imageUrl: imageUrl,
+                  price: price,
+                  discount: discount,
                 ),
+                // ElevatedButton.icon(
+                //   onPressed: () {
+                //     // здесь можно добавить логику добавления в корзину
+                //   },
+                //   icon: const Icon(Icons.shopping_cart),
+                //   label: Text(
+                //     discount > 0
+                //         ? '${(price * (1 - discount)).toStringAsFixed(2)} руб'
+                //         : '$price руб',
+                //     style: const TextStyle(fontSize: 16),
+                //   ),
+                //   style: ElevatedButton.styleFrom(
+                //     backgroundColor: Pallete.orange,
+                //     foregroundColor: Colors.white,
+                //     padding: const EdgeInsets.symmetric(
+                //         horizontal: 20, vertical: 12),
+                //   ),
+                // ),
               ],
             ),
           ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yummy/assets/theme/pallete.dart';
 import 'package:yummy/pages/card_page_info.dart';
+import 'package:yummy/widgets/cart_button.dart';
 import 'package:yummy/widgets/heart_button.dart';
 
 class CardPage extends StatelessWidget {
@@ -29,12 +30,17 @@ class CardPage extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => CardPageInfo(id: id,
-        name: name,
-        imageUrl: imageUrl,
-        price: price,
-        discount: discount,
-        description: description,)));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => CardPageInfo(
+                      id: id,
+                      name: name,
+                      imageUrl: imageUrl,
+                      price: price,
+                      discount: discount,
+                      description: description,
+                    )));
       },
       child: Card(
         margin: const EdgeInsets.all(10),
@@ -112,10 +118,17 @@ class CardPage extends StatelessWidget {
                             ],
                           ),
                           HeartButton(id: id),
-                          IconButton(
-                            onPressed: () {},
-                            icon: const Icon(Icons.shopping_cart),
+                          CartButton(
+                            id: id,
+                            name: name,
+                            imageUrl: imageUrl,
+                            price: price,
+                            discount: discount,
                           ),
+                          // IconButton(
+                          //   onPressed: () {},
+                          //   icon: const Icon(Icons.shopping_cart),
+                          // ),
                         ],
                       ),
                     ],
