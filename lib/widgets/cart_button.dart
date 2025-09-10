@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:yummy/assets/theme/pallete.dart';
+import 'package:yummy/pages/home_page.dart';
 
 class CartButton extends StatefulWidget {
   final String id;
@@ -84,7 +85,7 @@ class _CartButtonState extends State<CartButton> {
             onPressed: () {
               Navigator.pop(context);
               // Перенаправление на страницу входа, если она у вас есть
-              // Navigator.push(context, MaterialPageRoute(builder: (_) => LoginPage()));
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const HomePage(selectedIndex: 4)));
             },
             child: const Text("Войти"),
           ),

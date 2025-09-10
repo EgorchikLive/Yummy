@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:yummy/assets/theme/pallete.dart';
+import 'package:yummy/pages/home_page.dart';
 import 'package:yummy/services/auth_storage_service.dart'; // Импортируем сервис для авторизации
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -115,6 +116,7 @@ class _HeartButtonState extends State<HeartButton> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const HomePage(selectedIndex: 4)));
               },
               child: const Text("Войти"),
             ),
