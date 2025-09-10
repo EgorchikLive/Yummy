@@ -116,7 +116,7 @@ class _HeartButtonState extends State<HeartButton> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const HomePage(selectedIndex: 4)));
+                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const HomePage(selectedIndex: 4)), (_)=>false);
               },
               child: const Text("Войти"),
             ),

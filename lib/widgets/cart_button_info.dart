@@ -84,7 +84,7 @@ class _CartElevatedButtonState extends State<CartElevatedButton> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const HomePage(selectedIndex: 4)));
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const HomePage(selectedIndex: 4)), (_)=>false);
             },
             child: const Text("Войти"),
           ),
