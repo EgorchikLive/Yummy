@@ -164,6 +164,35 @@ class AuthPage extends StatelessWidget {
                       );
                     }
                   }),
+                  // const SizedBox(height: 10),
+                  // // 🔹 Кнопка входа через Google
+                  // ElevatedButton.icon(
+                  //   style: ElevatedButton.styleFrom(
+                  //     backgroundColor: Colors.white,
+                  //     foregroundColor: Colors.black,
+                  //     minimumSize: const Size(double.infinity, 50),
+                  //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  //     side: const BorderSide(color: Pallete.orange),
+                  //   ),
+                  //   icon: Image.asset(
+                  //     'assets/icons/google.png',
+                  //     height: 24,
+                  //   ),
+                  //   label: const Text(
+                  //     'Войти через Google',
+                  //     style: TextStyle(fontWeight: FontWeight.w600),
+                  //   ),
+                  //   onPressed: () async {
+                  //     bool success = await AuthService().signInWithGoogle();
+                  //     if (success) {
+                  //       onLoginSuccess();
+                  //     } else {
+                  //       ScaffoldMessenger.of(context).showSnackBar(
+                  //         const SnackBar(content: Text('Ошибка входа через Google')),
+                  //       );
+                  //     }
+                  //   },
+                  // ),
             ],
           ),
         ),

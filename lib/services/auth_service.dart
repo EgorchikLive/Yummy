@@ -1,3 +1,108 @@
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:google_sign_in/google_sign_in.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+
+// class AuthService {
+//   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+//   // Вход через email и пароль
+//   Future<bool> signIn({required String email, required String password}) async {
+//     try {
+//       await _auth.signInWithEmailAndPassword(email: email, password: password);
+//       return true;
+//     } catch (e) {
+//       print('Sign in error: $e');
+//       return false;
+//     }
+//   }
+
+//   // Регистрация
+//   Future<bool> register({
+//     required String username,
+//     required String email,
+//     required String password,
+//   }) async {
+//     try {
+//       final userCredential = await _auth.createUserWithEmailAndPassword(
+//         email: email,
+//         password: password,
+//       );
+
+//       // Добавим пользователя в Firestore
+//       await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+//         'name': username,
+//         'email': email,
+//         'authMethod': 'email',
+//         'createdAt': DateTime.now(),
+//       });
+
+//       return true;
+//     } catch (e) {
+//       print('Register error: $e');
+//       return false;
+//     }
+//   }
+
+//   // Вход через Google
+//   Future<bool> signInWithGoogle() async {
+//     try {
+//       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+//       if (googleUser == null) return false;
+
+//       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+//       final credential = GoogleAuthProvider.credential(
+//         accessToken: googleAuth.accessToken,
+//         idToken: googleAuth.idToken,
+//       );
+
+//       final userCredential = await _auth.signInWithCredential(credential);
+//       final user = userCredential.user;
+
+//       if (user != null) {
+//         final userRef = FirebaseFirestore.instance.collection('users').doc(user.uid);
+//         final doc = await userRef.get();
+
+//         if (!doc.exists) {
+//           await userRef.set({
+//             'name': user.displayName ?? '',
+//             'email': user.email,
+//             'authMethod': 'google',
+//             'createdAt': DateTime.now(),
+//           });
+//         }
+//       }
+
+//       return true;
+//     } catch (e) {
+//       print('Google sign in error: $e');
+//       return false;
+//     }
+//   }
+
+//   // Проверка, через какой метод вошли
+//   Future<String?> getAuthMethod() async {
+//     final user = _auth.currentUser;
+//     if (user == null) return null;
+
+//     try {
+//       final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+//       if (doc.exists) {
+//         return doc.data()?['authMethod'];
+//       }
+//     } catch (e) {
+//       print('getAuthMethod error: $e');
+//     }
+//     return null;
+//   }
+
+//   // Выход
+//   Future<void> signOut() async {
+//     await GoogleSignIn().signOut();
+//     await _auth.signOut();
+//   }
+// }
+
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 

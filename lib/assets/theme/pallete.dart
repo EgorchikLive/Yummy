@@ -14,4 +14,7 @@ class Pallete {
 
   static const Color black = Color.fromRGBO(0, 0, 0, 1);
   static const Color white = Color.fromRGBO(255, 255, 255, 1);
+
+  static const Color darkGray = Color.fromRGBO(28, 28, 28, 0.5);
+  static const Color lightGray = Color.fromRGBO(240, 240, 240, 0.5);
 }
