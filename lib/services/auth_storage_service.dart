@@ -9,9 +9,17 @@ class AuthStorageService {
   }
 
   Future<bool> getLoginState() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_isLoggedInKey) ?? false;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(_isLoggedInKey) ?? false;
+    } catch (e) {
+      return false; // Возвращаем безопасное значение по умолчанию
+    }
   }
+  // Future<bool> getLoginState() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   return prefs.getBool(_isLoggedInKey) ?? false;
+  // }
 
   Future<void> clearLoginState() async {
     final prefs = await SharedPreferences.getInstance();
