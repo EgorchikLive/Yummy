@@ -48,13 +48,10 @@ class _UserPageState extends State<UserPage> {
     final authStorage = AuthStorageService();
     await authStorage.clearLoginState();
 
-    // Обновление состояния темы
     bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    // Сохраняем состояние темы в SharedPreferences
     await ThemeProvider.saveThemeState(isDarkMode);
 
-    // Вызываем функцию onLogout для обновления состояния в родительском виджете
     widget.onLogout();
   }
 

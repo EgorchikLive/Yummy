@@ -1,9 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:yummy/assets/theme/theme.dart'; // Подключаем вашу тему
+import 'package:yummy/assets/theme/theme.dart';
 import 'package:yummy/firebase_options.dart';
-import 'package:yummy/pages/home_page.dart'; // Ваш главный экран
+import 'package:yummy/pages/home_page.dart';
 import 'package:yummy/provider/theme_provider.dart';
 
 void main() async {
@@ -28,7 +28,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _isDarkMode = widget.isDarkMode; // Инициализируем тему
+    _isDarkMode = widget.isDarkMode;
   }
 
   @override
@@ -36,17 +36,17 @@ class _MyAppState extends State<MyApp> {
     return GetMaterialApp(
       title: 'Yummy',
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      theme: AppTheme.lightThemeMode, // Светлая тема
-      darkTheme: AppTheme.darkThemeMode, // Тёмная тема
+      theme: AppTheme.lightThemeMode,
+      darkTheme: AppTheme.darkThemeMode,
       home: DrawerWidget(
         isDarkMode: _isDarkMode,
         onThemeChanged: (value) {
           setState(() {
             _isDarkMode =
-                value; // Обновляем состояние темы в родительском виджете
+                value;
           });
           ThemeProvider.saveThemeState(
-              _isDarkMode); // Сохраняем выбранное состояние темы
+              _isDarkMode);
         },
       ),
     );

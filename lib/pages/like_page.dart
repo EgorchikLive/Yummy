@@ -20,12 +20,10 @@ class _LikePageState extends State<LikePage> {
     _loadLikedItems();
   }
 
-  // Загрузка избранных товаров из Firestore для текущего пользователя
   Future<void> _loadLikedItems() async {
     final user = _auth.currentUser;
 
     if (user != null) {
-      // Получаем все товары из коллекции "favorites" текущего пользователя
       QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
@@ -35,7 +33,6 @@ class _LikePageState extends State<LikePage> {
       List<Map<String, dynamic>> likedItems = [];
 
       for (var doc in snapshot.docs) {
-        // Получаем данные о товаре из основной коллекции
         var productDoc = await FirebaseFirestore.instance
             .collection('foods')
             .doc(doc.id)
@@ -54,7 +51,7 @@ class _LikePageState extends State<LikePage> {
       }
 
       setState(() {
-        foodList = likedItems; // Обновляем состояние с избранными товарами
+        foodList = likedItems;
       });
     }
   }
@@ -70,15 +67,15 @@ class _LikePageState extends State<LikePage> {
               itemBuilder: (context, index) {
                 return CardPage(
                   id: foodList[index]['id'] ??
-                      '', // Если id равно null, используем пустую строку
+                      '',
                   name: foodList[index]['name'] ??
-                      'Без названия', // Если name равно null, используем 'Без названия'
+                      'Без названия',
                   imageUrl: foodList[index]['image'] ??
-                      '', // Если image равно null, используем пустую строку
+                      '',
                   price: foodList[index]['price'] ??
-                      0, // Если price равно null, используем 0
+                      0,
                   discount: foodList[index]['discount'] ??
-                      0.0, // Если discount равно null, используем 0.0
+                      0.0,
                   description: foodList[index]['description'] ??
                       '',
                 );

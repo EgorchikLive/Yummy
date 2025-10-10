@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:yummy/assets/theme/pallete.dart';
 import 'package:yummy/pages/home_page.dart';
-import 'package:yummy/services/auth_storage_service.dart'; // Импортируем сервис для авторизации
+import 'package:yummy/services/auth_storage_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class HeartButton extends StatefulWidget {
-  final String id; // Уникальный идентификатор товара
+  final String id;
 
   const HeartButton({super.key, required this.id});
 
@@ -29,7 +29,6 @@ class _HeartButtonState extends State<HeartButton> {
     _checkLoginState();
   }
 
-  // Проверка состояния авторизации при инициализации
   _checkLoginState() async {
     final savedState = await _authStorage.getLoginState();
     setState(() {
@@ -37,7 +36,6 @@ class _HeartButtonState extends State<HeartButton> {
     });
   }
 
-  // Загрузка состояния "лайкнут" из Firestore
   // _loadHeartState() async {
   // final user = _auth.currentUser;
   //   if (user != null && widget.id.isNotEmpty) {
@@ -63,7 +61,6 @@ class _HeartButtonState extends State<HeartButton> {
   _loadHeartState() async {
     final user = _auth.currentUser;
     if (user != null) {
-      // Проверяем наличие товара в избранном
       final doc = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
@@ -77,7 +74,6 @@ class _HeartButtonState extends State<HeartButton> {
     }
   }
 
-  // Сохранение состояния "лайкнут" в Firestore
   // _saveHeartState(bool value) async {
   //   final user = _auth.currentUser;
   //   if (user == null) {
@@ -122,24 +118,19 @@ class _HeartButtonState extends State<HeartButton> {
           .doc(widget.id);
 
       if (value) {
-        // Добавляем товар в избранное
         await userRef.set({
           'id': widget.id,
         });
       } else {
-        // Удаляем товар из избранного
         await userRef.delete();
       }
     }
   }
 
-  // Обработка нажатия на кнопку "Лайк"
   _onLikePressed() async {
     if (!isLoggedIn) {
-      // Если пользователь не авторизован, показываем диалог
       _showLoginDialog();
     } else {
-      // Если авторизован, сохраняем состояние лайка в Firestore
       setState(() {
         isLiked = !isLiked;
         _saveHeartState(isLiked);
@@ -147,7 +138,6 @@ class _HeartButtonState extends State<HeartButton> {
     }
   }
 
-  // Диалог для авторизации
   _showLoginDialog() {
     showDialog(
       context: context,
@@ -189,7 +179,7 @@ class _HeartButtonState extends State<HeartButton> {
         isLiked ? Pallete.orange : (isDarkMode ? Colors.white : Colors.black);
 
     return IconButton(
-      onPressed: _onLikePressed, // Вызываем метод для обработки нажатия
+      onPressed: _onLikePressed,
       icon: Icon(
         isLiked ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
         color: iconColor,

@@ -7,7 +7,7 @@ class AuthProvider with ChangeNotifier {
 
   void login() {
     _isLoggedIn = true;
-    notifyListeners(); // Уведомляем всех слушателей об изменении
+    notifyListeners();
   }
 
   void logout() {

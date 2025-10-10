@@ -6,7 +6,6 @@ class ActionsPage extends StatelessWidget {
   const ActionsPage({super.key});
 
   Future<List<Map<String, dynamic>>> getFoodListWithDiscount() async {
-    // Получаем данные из Firestore
     QuerySnapshot snapshot =
         await FirebaseFirestore.instance.collection('foods').get();
     return snapshot.docs
@@ -21,7 +20,7 @@ class ActionsPage extends StatelessWidget {
             'description': data['description'] ?? '',
           };
         })
-        .where((item) => item['discount'] > 0) // Отбираем товары со скидкой
+        .where((item) => item['discount'] > 0)
         .toList();
   }
 
@@ -30,7 +29,7 @@ class ActionsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Скидки')),
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: getFoodListWithDiscount(), // Загружаем товары с акциями
+        future: getFoodListWithDiscount(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

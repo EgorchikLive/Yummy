@@ -107,7 +107,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
                     return Dismissible(
                       key: Key(id),
-                      direction: DismissDirection.endToStart, // свайп влево
+                      direction: DismissDirection.endToStart,
                       background: Container(
                         alignment: Alignment.centerRight,
                         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -119,7 +119,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         ),
                       ),
                       confirmDismiss: (direction) async {
-                        // подтверждение удаления
                         final confirm = await showDialog(
                           context: context,
                           builder: (context) => AlertDialog(

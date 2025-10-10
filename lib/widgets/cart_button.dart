@@ -84,7 +84,6 @@ class _CartButtonState extends State<CartButton> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              // Перенаправление на страницу входа, если она у вас есть
               Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const HomePage(selectedIndex: 4)), (_)=>false);
             },
             child: const Text("Войти"),

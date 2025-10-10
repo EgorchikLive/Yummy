@@ -6,22 +6,20 @@ class MainPage extends StatelessWidget {
   const MainPage({super.key});
 
   Future<List<Map<String, dynamic>>> getFoodList() async {
-    // Получаем данные из Firestore
     QuerySnapshot snapshot =
         await FirebaseFirestore.instance.collection('foods').get();
     return snapshot.docs.map((doc) {
       var data = doc.data() as Map<String, dynamic>;
-      // Добавляем проверки на null для полей
       return {
         'id':
-            data['id'] ?? '', // Если 'id' равно null, используем пустую строку
+            data['id'] ?? '',
         'name': data['name'] ??
-            'Без названия', // Если 'name' равно null, используем 'Без названия'
+            'Без названия',
         'image': data['image'] ??
-            '', // Если 'image' равно null, используем пустую строку
-        'price': data['price'] ?? 0, // Если 'price' равно null, используем 0
+            '',
+        'price': data['price'] ?? 0,
         'discount': data['discount'] ??
-            0.0, // Если 'discount' равно null, используем 0.0
+            0.0,
         'description': data['description'] ?? '',
       };
     }).toList();
@@ -32,7 +30,7 @@ class MainPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Главная')),
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: getFoodList(), // Загружаем список продуктов
+        future: getFoodList(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -45,7 +43,6 @@ class MainPage extends StatelessWidget {
             return const Center(child: Text('Нет данных'));
           }
 
-          // Полученные данные
           final foodList = snapshot.data!;
 
           return ListView.builder(
@@ -53,15 +50,15 @@ class MainPage extends StatelessWidget {
             itemBuilder: (context, index) {
               return CardPage(
                 id: foodList[index]['id'] ??
-                    '', // Если id равно null, используем пустую строку
+                    '',
                 name: foodList[index]['name'] ??
-                    'Без названия', // Если name равно null, используем 'Без названия'
+                    'Без названия',
                 imageUrl: foodList[index]['image'] ??
-                    '', // Если image равно null, используем пустую строку
+                    '',
                 price: foodList[index]['price'] ??
-                    0, // Если price равно null, используем 0
+                    0,
                 discount: foodList[index]['discount'] ??
-                    0.0, // Если discount равно null, используем 0.0
+                    0.0,
                 description: foodList[index]['description'] ??
                       '',
               );

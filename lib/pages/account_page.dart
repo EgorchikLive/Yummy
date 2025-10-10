@@ -47,7 +47,6 @@ class _AccountPageState extends State<AccountPage> {
     return Scaffold(
       body: Stack(
         children: [
-          // PageView с двумя страницами
           PageView(
             controller: _pageController,
             children: [
@@ -55,17 +54,16 @@ class _AccountPageState extends State<AccountPage> {
                 emailController: emailController,
                 passwordController: passwordController,
                 onLoginSuccess: widget.onLoginSuccess,
-              ), // Передаем контроллеры в AuthPage
+              ),
               RegisterPage(
                 nameController: nameController,
                 emailController: emailController,
                 passwordController: passwordController,
                 onLoginSuccess: widget.onLoginSuccess,
-              ), // Передаем контроллеры в RegisterPage
+              ),
             ],
           ),
 
-          // Индикатор слайдера поверх страниц
           Positioned(
             bottom: 16,
             left: 20,
@@ -93,7 +91,6 @@ class _AccountPageState extends State<AccountPage> {
   }
 }
 
-// Страница Авторизации
 class AuthPage extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
@@ -201,8 +198,6 @@ class AuthPage extends StatelessWidget {
   }
 }
 
-// Страница Регистрации
-// Страница Регистрации
 class RegisterPage extends StatelessWidget {
   final TextEditingController nameController;
   final TextEditingController emailController;
@@ -278,9 +273,8 @@ class RegisterPage extends StatelessWidget {
                   );
 
                   if (isSuccess) {
-                    onLoginSuccess(); // Успешная регистрация
+                    onLoginSuccess();
                   } else {
-                    // Можно добавить логику для вывода сообщения об ошибке
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Ошибка регистрации')),
                     );

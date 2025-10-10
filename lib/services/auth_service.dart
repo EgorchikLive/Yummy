@@ -159,20 +159,16 @@ class AuthService {
     required String password,
   }) async {
     try {
-      // Пытаемся войти пользователя с email и паролем
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      // Если все прошло успешно, возвращаем true
       return true;
     } on FirebaseAuthException catch (e) {
-      // Ошибка при входе
       print('Sign In Error: ${e.message}');
       return false;
     } catch (e) {
-      // Прочие ошибки
       print('Error: $e');
       return false;
     }
