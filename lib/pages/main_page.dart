@@ -4,8 +4,7 @@ import 'package:yummy/pages/add_page.dart';
 import 'package:yummy/pages/delete_foods_page.dart';
 import 'package:yummy/pages/edit_foods_page.dart';
 import 'package:yummy/widgets/card_page.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Добавляем импорт для работы с пользователем
-
+import 'package:firebase_auth/firebase_auth.dart';
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
 
@@ -56,12 +55,9 @@ void _addFoodItem(BuildContext context) {
     context,
     MaterialPageRoute(builder: (context) => const AddPage()),
   ).then((result) {
-    // Если товар был добавлен (result == true), обновляем данные
     if (result == true) {
-      // Обновляем FutureBuilder, перезапуская getFoodList()
       setState(() {});
       
-      // Или показываем уведомление
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Список товаров обновлен'),

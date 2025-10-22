@@ -21,20 +21,17 @@ class _AddPageState extends State<AddPage> {
   bool _isLoading = false;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Функция для получения следующего ID
   Future<String> _getNextFoodId() async {
     try {
-      // Получаем все товары и сортируем по ID в числовом порядке
       QuerySnapshot snapshot = await _firestore
           .collection('foods')
           .orderBy('id')
           .get();
 
       if (snapshot.docs.isEmpty) {
-        return '1'; // Если товаров нет, начинаем с 1
+        return '1';
       }
 
-      // Преобразуем ID в числа и находим максимальный
       int maxId = 0;
       for (var doc in snapshot.docs) {
         var data = doc.data() as Map<String, dynamic>;
@@ -48,12 +45,10 @@ class _AddPageState extends State<AddPage> {
       return (maxId + 1).toString();
     } catch (e) {
       print('Ошибка при получении следующего ID: $e');
-      // В случае ошибки возвращаем timestamp как fallback
       return DateTime.now().millisecondsSinceEpoch.toString();
     }
   }
 
-  // Валидация URL
   String? _validateUrl(String? value) {
     if (value == null || value.isEmpty) {
       return 'Пожалуйста, введите URL изображения';
@@ -71,7 +66,6 @@ class _AddPageState extends State<AddPage> {
       });
 
       try {
-        // Получаем следующий ID
         final String foodId = await _getNextFoodId();
 
         await _firestore.collection('foods').doc(foodId).set({
@@ -85,7 +79,6 @@ class _AddPageState extends State<AddPage> {
           'createdBy': FirebaseAuth.instance.currentUser?.uid,
         });
 
-        // Показываем уведомление об успехе
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Товар успешно добавлен! ID: $foodId'),
@@ -93,7 +86,6 @@ class _AddPageState extends State<AddPage> {
           ),
         );
 
-        // Возвращаемся на главную страницу с результатом, чтобы обновить данные
         Navigator.pop(context, true);
 
       } catch (e) {
@@ -147,7 +139,6 @@ class _AddPageState extends State<AddPage> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                // Превью изображения
                 if (_imageController.text.isNotEmpty)
                   Container(
                     width: 200,
@@ -173,7 +164,6 @@ class _AddPageState extends State<AddPage> {
                     ),
                   ),
 
-                // Поле названия
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(
@@ -190,7 +180,6 @@ class _AddPageState extends State<AddPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Поле цены
                 TextFormField(
                   controller: _priceController,
                   decoration: const InputDecoration(
@@ -215,7 +204,6 @@ class _AddPageState extends State<AddPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Поле скидки
                 TextFormField(
                   controller: _discountController,
                   decoration: const InputDecoration(
@@ -241,7 +229,6 @@ class _AddPageState extends State<AddPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Поле описания
                 TextFormField(
                   controller: _descriptionController,
                   decoration: const InputDecoration(
@@ -259,7 +246,6 @@ class _AddPageState extends State<AddPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Поле URL изображения
                 TextFormField(
                   controller: _imageController,
                   decoration: const InputDecoration(
@@ -268,13 +254,12 @@ class _AddPageState extends State<AddPage> {
                     prefixIcon: Icon(Icons.image),
                   ),
                   onChanged: (value) {
-                    setState(() {}); // Обновляем превью изображения
+                    setState(() {});
                   },
                   validator: _validateUrl,
                 ),
                 const SizedBox(height: 24),
 
-                // Кнопки действий
                 Row(
                   children: [
                     Expanded(
@@ -306,7 +291,6 @@ class _AddPageState extends State<AddPage> {
                   ],
                 ),
 
-                // Пример данных для быстрого заполнения
                 const SizedBox(height: 20),
                 const Divider(),
                 const Text(
