@@ -91,7 +91,7 @@ class _AccountPageState extends State<AccountPage> {
   }
 }
 
-class AuthPage extends StatelessWidget {
+class AuthPage extends StatefulWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
   final VoidCallback onLoginSuccess;
@@ -102,6 +102,19 @@ class AuthPage extends StatelessWidget {
     required this.passwordController,
     required this.onLoginSuccess,
   });
+
+  @override
+  State<AuthPage> createState() => _AuthPageState();
+}
+
+class _AuthPageState extends State<AuthPage> {
+  bool _isPasswordVisible = false;
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      _isPasswordVisible = !_isPasswordVisible;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +142,7 @@ class AuthPage extends StatelessWidget {
                   ),
                 ),
                 hintText: 'Почта',
-                controller: emailController,
+                controller: widget.emailController,
               ),
               const SizedBox(height: 18),
               CustomField(
@@ -140,19 +153,27 @@ class AuthPage extends StatelessWidget {
                   ),
                 ),
                 hintText: 'Пароль',
-                controller: passwordController,
+                controller: widget.passwordController,
+                obscureText: !_isPasswordVisible,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    color: Pallete.orange,
+                  ),
+                  onPressed: _togglePasswordVisibility,
+                ),
               ),
               const SizedBox(height: 18),
               CustomButton(
                   buttonText: 'Войти',
                   onTap: () async {
                     bool isSuccess = await AuthService().signIn(
-                      email: emailController.text,
-                      password: passwordController.text,
+                      email: widget.emailController.text,
+                      password: widget.passwordController.text,
                     );
 
                     if (isSuccess) {
-                      onLoginSuccess(); // Успешный вход
+                      widget.onLoginSuccess(); // Успешный вход
                     } else {
                       // Ошибка авторизации
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -161,35 +182,35 @@ class AuthPage extends StatelessWidget {
                       );
                     }
                   }),
-                  // const SizedBox(height: 10),
-                  // // 🔹 Кнопка входа через Google
-                  // ElevatedButton.icon(
-                  //   style: ElevatedButton.styleFrom(
-                  //     backgroundColor: Colors.white,
-                  //     foregroundColor: Colors.black,
-                  //     minimumSize: const Size(double.infinity, 50),
-                  //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  //     side: const BorderSide(color: Pallete.orange),
-                  //   ),
-                  //   icon: Image.asset(
-                  //     'assets/icons/google.png',
-                  //     height: 24,
-                  //   ),
-                  //   label: const Text(
-                  //     'Войти через Google',
-                  //     style: TextStyle(fontWeight: FontWeight.w600),
-                  //   ),
-                  //   onPressed: () async {
-                  //     bool success = await AuthService().signInWithGoogle();
-                  //     if (success) {
-                  //       onLoginSuccess();
-                  //     } else {
-                  //       ScaffoldMessenger.of(context).showSnackBar(
-                  //         const SnackBar(content: Text('Ошибка входа через Google')),
-                  //       );
-                  //     }
-                  //   },
-                  // ),
+              // const SizedBox(height: 10),
+              // // 🔹 Кнопка входа через Google
+              // ElevatedButton.icon(
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor: Colors.white,
+              //     foregroundColor: Colors.black,
+              //     minimumSize: const Size(double.infinity, 50),
+              //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              //     side: const BorderSide(color: Pallete.orange),
+              //   ),
+              //   icon: Image.asset(
+              //     'assets/icons/google.png',
+              //     height: 24,
+              //   ),
+              //   label: const Text(
+              //     'Войти через Google',
+              //     style: TextStyle(fontWeight: FontWeight.w600),
+              //   ),
+              //   onPressed: () async {
+              //     bool success = await AuthService().signInWithGoogle();
+              //     if (success) {
+              //       onLoginSuccess();
+              //     } else {
+              //       ScaffoldMessenger.of(context).showSnackBar(
+              //         const SnackBar(content: Text('Ошибка входа через Google')),
+              //       );
+              //     }
+              //   },
+              // ),
             ],
           ),
         ),
@@ -198,7 +219,7 @@ class AuthPage extends StatelessWidget {
   }
 }
 
-class RegisterPage extends StatelessWidget {
+class RegisterPage extends StatefulWidget {
   final TextEditingController nameController;
   final TextEditingController emailController;
   final TextEditingController passwordController;
@@ -211,6 +232,19 @@ class RegisterPage extends StatelessWidget {
     required this.passwordController,
     required this.onLoginSuccess,
   });
+
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  bool _isPasswordVisible = false;
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      _isPasswordVisible = !_isPasswordVisible;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -238,7 +272,7 @@ class RegisterPage extends StatelessWidget {
                   ),
                 ),
                 hintText: 'Имя',
-                controller: nameController,
+                controller: widget.nameController,
               ),
               const SizedBox(height: 18),
               CustomField(
@@ -249,7 +283,7 @@ class RegisterPage extends StatelessWidget {
                   ),
                 ),
                 hintText: 'Почта',
-                controller: emailController,
+                controller: widget.emailController,
               ),
               const SizedBox(height: 18),
               CustomField(
@@ -260,20 +294,28 @@ class RegisterPage extends StatelessWidget {
                   ),
                 ),
                 hintText: 'Пароль',
-                controller: passwordController,
+                controller: widget.passwordController,
+                obscureText: !_isPasswordVisible,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    color: Pallete.orange,
+                  ),
+                  onPressed: _togglePasswordVisibility,
+                ),
               ),
               const SizedBox(height: 18),
               CustomButton(
                 buttonText: 'Зарегистрироваться',
                 onTap: () async {
                   bool isSuccess = await AuthService().register(
-                    username: nameController.text,
-                    email: emailController.text,
-                    password: passwordController.text,
+                    username: widget.nameController.text,
+                    email: widget.emailController.text,
+                    password: widget.passwordController.text,
                   );
 
                   if (isSuccess) {
-                    onLoginSuccess();
+                    widget.onLoginSuccess();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Ошибка регистрации')),

@@ -2,62 +2,109 @@ import 'package:flutter/material.dart';
 import 'package:yummy/widgets/card_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ActionsPage extends StatelessWidget {
+class ActionsPage extends StatefulWidget {
   const ActionsPage({super.key});
 
-  Future<List<Map<String, dynamic>>> getFoodListWithDiscount() async {
-    QuerySnapshot snapshot =
-        await FirebaseFirestore.instance.collection('foods').get();
-    return snapshot.docs
-        .map((doc) {
-          var data = doc.data() as Map<String, dynamic>;
-          return {
-            'id': data['id'] ?? '',
-            'name': data['name'] ?? 'Без названия',
-            'image': data['image'] ?? '',
-            'price': data['price'] ?? 0,
-            'discount': data['discount'] ?? 0.0,
-            'description': data['description'] ?? '',
-          };
-        })
-        .where((item) => item['discount'] > 0)
-        .toList();
+  @override
+  State<ActionsPage> createState() => _ActionsPageState();
+}
+
+class _ActionsPageState extends State<ActionsPage> {
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
+      
+  List<Map<String, dynamic>> _discountFoodList = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDiscountFoods();
+  }
+
+  Future<void> _loadDiscountFoods() async {
+    try {
+      QuerySnapshot snapshot =
+          await FirebaseFirestore.instance.collection('foods').get();
+      List<Map<String, dynamic>> discountFoods = snapshot.docs
+          .map((doc) {
+            var data = doc.data() as Map<String, dynamic>;
+            return {
+              'id': data['id'] ?? '',
+              'name': data['name'] ?? 'Без названия',
+              'image': data['image'] ?? '',
+              'price': data['price'] ?? 0,
+              'discount': data['discount'] ?? 0.0,
+              'description': data['description'] ?? '',
+            };
+          })
+          .where((item) => item['discount'] > 0)
+          .toList();
+
+      setState(() {
+        _discountFoodList = discountFoods;
+      });
+    } catch (e) {
+      print('Ошибка загрузки товаров со скидкой: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _refreshData() async {
+    setState(() {
+      _isLoading = true;
+    });
+    await _loadDiscountFoods();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Скидки')),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: getFoodListWithDiscount(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Ошибка загрузки: ${snapshot.error}'));
-          }
-
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Нет товаров с акциями'));
-          }
-
-          final discountFoodList = snapshot.data!;
-
-          return ListView.builder(
-            itemCount: discountFoodList.length,
-            itemBuilder: (context, index) {
-              return CardPage(
-                id: discountFoodList[index]['id']!,
-                name: discountFoodList[index]['name']!,
-                imageUrl: discountFoodList[index]['image']!,
-                price: discountFoodList[index]['price']!,
-                discount: discountFoodList[index]['discount']!,
-                description: discountFoodList[index]['description']!,
-              );
-            },
-          );
-        },
+      body: RefreshIndicator(
+        key: _refreshIndicatorKey,
+        onRefresh: _refreshData,
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _discountFoodList.isEmpty
+                ? const Center(
+                    child: SingleChildScrollView(
+                      physics: AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.discount, size: 64, color: Colors.grey),
+                          SizedBox(height: 16),
+                          Text(
+                            'Нет товаров со скидками',
+                            style: TextStyle(fontSize: 18, color: Colors.grey),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Потяните вниз для обновления',
+                            style: TextStyle(fontSize: 14, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    itemCount: _discountFoodList.length,
+                    itemBuilder: (context, index) {
+                      return CardPage(
+                        id: _discountFoodList[index]['id']!,
+                        name: _discountFoodList[index]['name']!,
+                        imageUrl: _discountFoodList[index]['image']!,
+                        price: _discountFoodList[index]['price']!,
+                        discount: _discountFoodList[index]['discount']!,
+                        description: _discountFoodList[index]['description']!,
+                      );
+                    },
+                  ),
       ),
     );
   }

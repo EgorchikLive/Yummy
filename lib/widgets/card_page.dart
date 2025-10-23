@@ -31,37 +31,60 @@ class CardPage extends StatelessWidget {
 
     return Slidable(
       key: ValueKey(id),
-      startActionPane: ActionPane(
-        motion: const DrawerMotion(),
-        children: [
-          SlidableAction(
-            onPressed: (context) {
-              // например, добавить в избранное
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('$name добавлен в избранное')),
-              );
-            },
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
-            icon: Icons.favorite,
-            label: 'В избранное',
-          ),
-        ],
-      ),
+      // Слайдер только вправо
       endActionPane: ActionPane(
-        motion: const ScrollMotion(),
+        motion: const DrawerMotion(),
+        extentRatio: 0.7, // Ширина слайдера (70% экрана)
         children: [
-          SlidableAction(
-            onPressed: (context) {
-              // например, удалить из списка
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('$name удалён')),
-              );
-            },
-            backgroundColor: Colors.grey,
-            foregroundColor: Colors.white,
-            icon: Icons.delete,
-            label: 'Удалить',
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: isDarkMode ? Colors.grey[800] : Colors.grey[100],
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Описание:',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: textColor,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Text(
+                        description.isNotEmpty 
+                            ? description 
+                            : 'Описание отсутствует',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: textColor.withOpacity(0.8),
+                          height: 1.4,
+                        ),
+                        textAlign: TextAlign.justify,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  if (discount > 0)
+                    Text(
+                      'Скидка: ${(discount * 100).toInt()}%',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Pallete.orange,
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -96,6 +119,14 @@ class CardPage extends StatelessWidget {
                   width: 128,
                   height: 128,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 128,
+                      height: 128,
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.fastfood, size: 40),
+                    );
+                  },
                 ),
               ),
               const SizedBox(width: 10),
@@ -128,7 +159,7 @@ class CardPage extends StatelessWidget {
                           children: [
                             if (discount > 0)
                               Text(
-                                '$price',
+                                '$price руб',
                                 style: const TextStyle(
                                   color: Pallete.gray,
                                   decoration: TextDecoration.lineThrough,
@@ -138,7 +169,7 @@ class CardPage extends StatelessWidget {
                             if (discount > 0) const SizedBox(width: 4),
                             Text(
                               discount > 0
-                                  ? '${(price * (1 - discount)).toStringAsFixed(2)} руб'
+                                  ? '${(price * (1 - discount)).toInt()} руб'
                                   : '$price руб',
                               style: TextStyle(
                                 color: discount > 0 ? priceTextColor : textColor,

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:yummy/assets/theme/pallete.dart';
+import 'dart:io';
 
 class AddPage extends StatefulWidget {
   const AddPage({super.key});
@@ -20,6 +21,10 @@ class _AddPageState extends State<AddPage> {
 
   bool _isLoading = false;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final ImagePicker _imagePicker = ImagePicker();
+  
+  File? _selectedImage;
+  bool _isUsingUrl = true;
 
   Future<String> _getNextFoodId() async {
     try {
@@ -49,24 +54,98 @@ class _AddPageState extends State<AddPage> {
     }
   }
 
-  String? _validateUrl(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Пожалуйста, введите URL изображения';
-    }
-    if (!value.startsWith('http')) {
-      return 'Пожалуйста, введите корректный URL';
+  String? _validateImage() {
+    if (_isUsingUrl) {
+      if (_imageController.text.isEmpty) {
+        return 'Пожалуйста, введите URL изображения';
+      }
+      if (!_imageController.text.startsWith('http')) {
+        return 'Пожалуйста, введите корректный URL';
+      }
+    } else {
+      if (_selectedImage == null) {
+        return 'Пожалуйста, выберите изображение';
+      }
     }
     return null;
   }
 
+  Future<void> _pickImageFromGallery() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+
+      if (image != null) {
+        setState(() {
+          _selectedImage = File(image.path);
+          _isUsingUrl = false;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Ошибка при выборе изображения: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _takePhotoWithCamera() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+
+      if (image != null) {
+        setState(() {
+          _selectedImage = File(image.path);
+          _isUsingUrl = false;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Ошибка при съемке фото: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<String> _uploadImageToFirebase(File image) async {
+    // Здесь должна быть реализация загрузки изображения в Firebase Storage
+    // Пока возвращаем временный URL для демонстрации
+    await Future.delayed(const Duration(seconds: 1)); // Имитация загрузки
+    
+    // В реальном приложении здесь должен быть код для загрузки в Firebase Storage
+    // и получения download URL
+    return 'https://via.placeholder.com/300x200?text=Uploaded+Image';
+  }
+
   Future<void> _addFoodToFirebase() async {
-    if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState!.validate() && _validateImage() == null) {
       setState(() {
         _isLoading = true;
       });
 
       try {
         final String foodId = await _getNextFoodId();
+        String imageUrl = '';
+
+        if (_isUsingUrl) {
+          imageUrl = _imageController.text.trim();
+        } else if (_selectedImage != null) {
+          // Загружаем изображение в Firebase Storage
+          imageUrl = await _uploadImageToFirebase(_selectedImage!);
+        }
 
         await _firestore.collection('foods').doc(foodId).set({
           'id': foodId,
@@ -74,9 +153,7 @@ class _AddPageState extends State<AddPage> {
           'price': num.parse(_priceController.text.trim()),
           'discount': num.parse(_discountController.text.trim()),
           'description': _descriptionController.text.trim(),
-          'image': _imageController.text.trim(),
-          'createdAt': FieldValue.serverTimestamp(),
-          'createdBy': FirebaseAuth.instance.currentUser?.uid,
+          'image': imageUrl,
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -99,12 +176,14 @@ class _AddPageState extends State<AddPage> {
           _isLoading = false;
         });
       }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_validateImage() ?? 'Пожалуйста, заполните все поля'),
+          backgroundColor: Colors.orange,
+        ),
+      );
     }
-  }
-
-  void _clearForm() {
-    _formKey.currentState!.reset();
-    _discountController.text = '0.0';
   }
 
   @override
@@ -124,13 +203,6 @@ class _AddPageState extends State<AddPage> {
         title: const Text('Добавить новый товар'),
         backgroundColor: Pallete.orange,
         foregroundColor: Pallete.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.clear),
-            onPressed: _clearForm,
-            tooltip: 'Очистить форму',
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -139,30 +211,17 @@ class _AddPageState extends State<AddPage> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                if (_imageController.text.isNotEmpty)
-                  Container(
-                    width: 200,
-                    height: 200,
-                    margin: const EdgeInsets.only(bottom: 20),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        _imageController.text,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return const Icon(Icons.broken_image, size: 50);
-                        },
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return const Center(child: CircularProgressIndicator());
-                        },
-                      ),
-                    ),
-                  ),
+                // Превью изображения
+                _buildImagePreview(),
+                const SizedBox(height: 20),
+
+                // Переключатель способа загрузки изображения
+                _buildImageSourceSelector(),
+                const SizedBox(height: 16),
+
+                // Поле для URL или кнопки загрузки
+                _isUsingUrl ? _buildUrlInput() : _buildImageUploadButtons(),
+                const SizedBox(height: 16),
 
                 TextFormField(
                   controller: _nameController,
@@ -244,20 +303,6 @@ class _AddPageState extends State<AddPage> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
-
-                TextFormField(
-                  controller: _imageController,
-                  decoration: const InputDecoration(
-                    labelText: 'URL изображения *',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.image),
-                  ),
-                  onChanged: (value) {
-                    setState(() {});
-                  },
-                  validator: _validateUrl,
-                ),
                 const SizedBox(height: 24),
 
                 Row(
@@ -325,6 +370,178 @@ class _AddPageState extends State<AddPage> {
     );
   }
 
+  Widget _buildImagePreview() {
+    return Container(
+      width: 200,
+      height: 200,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade300),
+        color: Colors.grey.shade100,
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: _isUsingUrl
+            ? _imageController.text.isNotEmpty
+                ? Image.network(
+                    _imageController.text,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                          SizedBox(height: 8),
+                          Text('Неверный URL', style: TextStyle(fontSize: 12)),
+                        ],
+                      );
+                    },
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return const Center(child: CircularProgressIndicator());
+                    },
+                  )
+                : const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.image, size: 50, color: Colors.grey),
+                      SizedBox(height: 8),
+                      Text('Введите URL', style: TextStyle(fontSize: 12)),
+                    ],
+                  )
+            : _selectedImage != null
+                ? Image.file(
+                    _selectedImage!,
+                    fit: BoxFit.cover,
+                  )
+                : const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.photo_camera, size: 50, color: Colors.grey),
+                      SizedBox(height: 8),
+                      Text('Выберите фото', style: TextStyle(fontSize: 12)),
+                    ],
+                  ),
+      ),
+    );
+  }
+
+  Widget _buildImageSourceSelector() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Способ загрузки изображения:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      setState(() {
+                        _isUsingUrl = true;
+                        _selectedImage = null;
+                      });
+                    },
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: _isUsingUrl ? Pallete.orange.withOpacity(0.1) : null,
+                      side: BorderSide(
+                        color: _isUsingUrl ? Pallete.orange : Colors.grey,
+                      ),
+                    ),
+                    child: Text(
+                      'URL',
+                      style: TextStyle(
+                        color: _isUsingUrl ? Pallete.orange : Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      setState(() {
+                        _isUsingUrl = false;
+                        _imageController.clear();
+                      });
+                    },
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: !_isUsingUrl ? Pallete.orange.withOpacity(0.1) : null,
+                      side: BorderSide(
+                        color: !_isUsingUrl ? Pallete.orange : Colors.grey,
+                      ),
+                    ),
+                    child: Text(
+                      'С устройства',
+                      style: TextStyle(
+                        color: !_isUsingUrl ? Pallete.orange : Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUrlInput() {
+    return TextFormField(
+      controller: _imageController,
+      decoration: const InputDecoration(
+        labelText: 'URL изображения *',
+        border: OutlineInputBorder(),
+        prefixIcon: Icon(Icons.link),
+        hintText: 'https://example.com/image.jpg',
+      ),
+      onChanged: (value) {
+        setState(() {});
+      },
+    );
+  }
+
+  Widget _buildImageUploadButtons() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _pickImageFromGallery,
+                icon: const Icon(Icons.photo_library),
+                label: const Text('Галерея'),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _takePhotoWithCamera,
+                icon: const Icon(Icons.camera_alt),
+                label: const Text('Камера'),
+              ),
+            ),
+          ],
+        ),
+        if (_selectedImage != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            'Выбрано: ${_selectedImage!.path.split('/').last}',
+            style: const TextStyle(fontSize: 12, color: Colors.green),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ],
+    );
+  }
+
   Widget _buildExampleChip(
     String name,
     String description,
@@ -340,6 +557,8 @@ class _AddPageState extends State<AddPage> {
         _priceController.text = price;
         _discountController.text = discount;
         _imageController.text = imageUrl;
+        _isUsingUrl = true;
+        _selectedImage = null;
         setState(() {});
       },
       backgroundColor: Pallete.orangeLight,

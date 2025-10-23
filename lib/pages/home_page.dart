@@ -66,54 +66,49 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        // ctrl.fetchProducts();
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Yummy'),
-          leading: IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () {
-              ZoomDrawer.of(context)!.toggle();
-            },
-          ),
-          backgroundColor: Pallete.orange,
-        ),
-        body: pages[selectedIndex],
-        bottomNavigationBar: BottomNavigationBar(
-          unselectedItemColor: Pallete.gray,
-          fixedColor: Pallete.orange,
-          currentIndex: selectedIndex,
-          onTap: (value) {
-            setState(() {
-              selectedIndex = value;
-            });
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Yummy'),
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            ZoomDrawer.of(context)!.toggle();
           },
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Главная',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.checkmark_seal),
-              label: 'Акции',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart),
-              label: 'Корзина',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.heart),
-              label: 'Избранное',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.account_circle_sharp),
-              label: 'Аккаунт',
-            ),
-          ],
         ),
+        backgroundColor: Pallete.orange,
+      ),
+      body: pages[selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        unselectedItemColor: Pallete.gray,
+        fixedColor: Pallete.orange,
+        currentIndex: selectedIndex,
+        onTap: (value) {
+          setState(() {
+            selectedIndex = value;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Главная',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.checkmark_seal),
+            label: 'Акции',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Корзина',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.heart),
+            label: 'Избранное',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle_sharp),
+            label: 'Аккаунт',
+          ),
+        ],
       ),
     );
   }

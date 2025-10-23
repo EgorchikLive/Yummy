@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.5.4
+  sdk: ^3.9.2
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -50,7 +50,10 @@ dependencies:
   flutter_slidable: ^3.0.0
   google_sign_in: ^6.2.1
   uuid: ^4.2.1
-  
+  http: ^1.1.0
+  url_launcher: ^6.2.0
+  image_picker: ^1.2.0
+  # file_picker: ^5.6.1
 
 dev_dependencies:
   json_serializable: ^6.8.0

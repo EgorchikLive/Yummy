@@ -5,6 +5,7 @@ import 'package:yummy/pages/delete_foods_page.dart';
 import 'package:yummy/pages/edit_foods_page.dart';
 import 'package:yummy/widgets/card_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
 
@@ -13,26 +14,63 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  Future<List<Map<String, dynamic>>> getFoodList() async {
-    QuerySnapshot snapshot =
-        await FirebaseFirestore.instance.collection('foods').get();
-    return snapshot.docs.map((doc) {
-      var data = doc.data() as Map<String, dynamic>;
-      return {
-        'id': data['id'] ?? '',
-        'name': data['name'] ?? 'Без названия',
-        'image': data['image'] ?? '',
-        'price': data['price'] ?? 0,
-        'discount': data['discount'] ?? 0.0,
-        'description': data['description'] ?? '',
-      };
-    }).toList();
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
+      
+  List<Map<String, dynamic>> _foodList = [];
+  bool _isLoading = true;
+  bool _isAdmin = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
   }
 
-  Future<bool> isUserAdmin() async {
+  Future<void> _loadData() async {
+    await Future.wait([
+      _loadFoodList(),
+      _checkAdminStatus(),
+    ]);
+  }
+
+  Future<void> _loadFoodList() async {
+    try {
+      QuerySnapshot snapshot =
+          await FirebaseFirestore.instance.collection('foods').get();
+      List<Map<String, dynamic>> foodList = snapshot.docs.map((doc) {
+        var data = doc.data() as Map<String, dynamic>;
+        return {
+          'id': data['id'] ?? '',
+          'name': data['name'] ?? 'Без названия',
+          'image': data['image'] ?? '',
+          'price': data['price'] ?? 0,
+          'discount': data['discount'] ?? 0.0,
+          'description': data['description'] ?? '',
+        };
+      }).toList();
+
+      setState(() {
+        _foodList = foodList;
+      });
+    } catch (e) {
+      print('Ошибка загрузки данных: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _checkAdminStatus() async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
-      if (user == null) return false;
+      if (user == null) {
+        setState(() {
+          _isAdmin = false;
+        });
+        return;
+      }
 
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('users')
@@ -41,46 +79,63 @@ class _MainPageState extends State<MainPage> {
 
       if (userDoc.exists) {
         var userData = userDoc.data() as Map<String, dynamic>;
-        return userData['role'] == 'admin';
+        setState(() {
+          _isAdmin = userData['role'] == 'admin';
+        });
+      } else {
+        setState(() {
+          _isAdmin = false;
+        });
       }
-      return false;
     } catch (e) {
       print('Ошибка при проверке роли: $e');
-      return false;
+      setState(() {
+        _isAdmin = false;
+      });
     }
   }
 
-void _addFoodItem(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const AddPage()),
-  ).then((result) {
-    if (result == true) {
-      setState(() {});
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Список товаров обновлен'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    }
-  });
-}
+  Future<void> _refreshData() async {
+    setState(() {
+      _isLoading = true;
+    });
+    await _loadData();
+  }
 
-void _editFoodItems(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const EditFoodsPage()),
-  );
-}
+  void _addFoodItem(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddPage()),
+    ).then((result) {
+      if (result == true) {
+        _refreshData();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Список товаров обновлен'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    });
+  }
 
-void _deleteFoodItems(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const DeleteFoodsPage()),
-  );
-}
+  void _editFoodItems(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const EditFoodsPage()),
+    ).then((_) {
+      _refreshData();
+    });
+  }
+
+  void _deleteFoodItems(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const DeleteFoodsPage()),
+    ).then((_) {
+      _refreshData();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,141 +143,70 @@ void _deleteFoodItems(BuildContext context) {
       appBar: AppBar(
         title: const Text('Главная'),
         actions: [
-          FutureBuilder<bool>(
-            future: isUserAdmin(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const SizedBox.shrink();
-              }
-              if (snapshot.hasData && snapshot.data == true) {
-                return Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.add),
-                      onPressed: () => _addFoodItem(context),
-                      tooltip: 'Добавить товар',
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () => _editFoodItems(context),
-                      tooltip: 'Редактировать товары',
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () => _deleteFoodItems(context),
-                      tooltip: 'Удалить товары',
-                    ),
-                  ],
-                );
-              }
-              return const SizedBox.shrink();
-            },
-          ),
+          if (_isAdmin)
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: () => _addFoodItem(context),
+                  tooltip: 'Добавить товар',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () => _editFoodItems(context),
+                  tooltip: 'Редактировать товары',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () => _deleteFoodItems(context),
+                  tooltip: 'Удалить товары',
+                ),
+              ],
+            ),
         ],
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: getFoodList(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Ошибка загрузки: ${snapshot.error}'));
-          }
-
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Нет данных'));
-          }
-
-          final foodList = snapshot.data!;
-
-          return ListView.builder(
-            itemCount: foodList.length,
-            itemBuilder: (context, index) {
-              return CardPage(
-                id: foodList[index]['id'] ?? '',
-                name: foodList[index]['name'] ?? 'Без названия',
-                imageUrl: foodList[index]['image'] ?? '',
-                price: foodList[index]['price'] ?? 0,
-                discount: foodList[index]['discount'] ?? 0.0,
-                description: foodList[index]['description'] ?? '',
-              );
-            },
-          );
-        },
+      body: RefreshIndicator(
+        key: _refreshIndicatorKey,
+        onRefresh: _refreshData,
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _foodList.isEmpty
+                ? const Center(
+                    child: SingleChildScrollView(
+                      physics: AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.fastfood, size: 64, color: Colors.grey),
+                          SizedBox(height: 16),
+                          Text(
+                            'Нет данных о товарах',
+                            style: TextStyle(fontSize: 18, color: Colors.grey),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Потяните вниз для обновления',
+                            style: TextStyle(fontSize: 14, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    itemCount: _foodList.length,
+                    itemBuilder: (context, index) {
+                      return CardPage(
+                        id: _foodList[index]['id'] ?? '',
+                        name: _foodList[index]['name'] ?? 'Без названия',
+                        imageUrl: _foodList[index]['image'] ?? '',
+                        price: _foodList[index]['price'] ?? 0,
+                        discount: _foodList[index]['discount'] ?? 0.0,
+                        description: _foodList[index]['description'] ?? '',
+                      );
+                    },
+                  ),
       ),
     );
   }
 }
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:flutter/material.dart';
-// import 'package:yummy/widgets/card_page.dart';
-
-// class MainPage extends StatelessWidget {
-//   const MainPage({super.key});
-
-//   Future<List<Map<String, dynamic>>> getFoodList() async {
-//     QuerySnapshot snapshot =
-//         await FirebaseFirestore.instance.collection('foods').get();
-//     return snapshot.docs.map((doc) {
-//       var data = doc.data() as Map<String, dynamic>;
-//       return {
-//         'id':
-//             data['id'] ?? '',
-//         'name': data['name'] ??
-//             'Без названия',
-//         'image': data['image'] ??
-//             '',
-//         'price': data['price'] ?? 0,
-//         'discount': data['discount'] ??
-//             0.0,
-//         'description': data['description'] ?? '',
-//       };
-//     }).toList();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: const Text('Главная')),
-//       body: FutureBuilder<List<Map<String, dynamic>>>(
-//         future: getFoodList(),
-//         builder: (context, snapshot) {
-//           if (snapshot.connectionState == ConnectionState.waiting) {
-//             return const Center(child: CircularProgressIndicator());
-//           }
-//           if (snapshot.hasError) {
-//             return Center(child: Text('Ошибка загрузки: ${snapshot.error}'));
-//           }
-
-//           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-//             return const Center(child: Text('Нет данных'));
-//           }
-
-//           final foodList = snapshot.data!;
-
-//           return ListView.builder(
-//             itemCount: foodList.length,
-//             itemBuilder: (context, index) {
-//               return CardPage(
-//                 id: foodList[index]['id'] ??
-//                     '',
-//                 name: foodList[index]['name'] ??
-//                     'Без названия',
-//                 imageUrl: foodList[index]['image'] ??
-//                     '',
-//                 price: foodList[index]['price'] ??
-//                     0,
-//                 discount: foodList[index]['discount'] ??
-//                     0.0,
-//                 description: foodList[index]['description'] ??
-//                       '',
-//               );
-//             },
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }

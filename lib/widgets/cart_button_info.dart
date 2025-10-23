@@ -35,15 +35,7 @@ class _CartElevatedButtonState extends State<CartElevatedButton> {
       return;
     }
 
-    final cartItem = {
-      'id': widget.id,
-      'name': widget.name,
-      'imageUrl': widget.imageUrl,
-      'price': widget.price,
-      'discount': widget.discount,
-      'finalPrice': (widget.price * (1 - widget.discount)).toStringAsFixed(2),
-      'addedAt': Timestamp.now(),
-    };
+    final finalPrice = (widget.price * (1 - widget.discount)).toStringAsFixed(2);
 
     try {
       final docRef = FirebaseFirestore.instance
@@ -52,7 +44,30 @@ class _CartElevatedButtonState extends State<CartElevatedButton> {
           .collection('cart')
           .doc(widget.id);
 
-      await docRef.set(cartItem);
+      final docSnapshot = await docRef.get();
+
+      if (docSnapshot.exists) {
+        final currentData = docSnapshot.data() as Map<String, dynamic>;
+        final currentQuantity = (currentData['quantity'] ?? 1) as int;
+        
+        await docRef.update({
+          'quantity': currentQuantity + 1,
+          'addedAt': Timestamp.now(),
+        });
+      } else {
+        final cartItem = {
+          'id': widget.id,
+          'name': widget.name,
+          'imageUrl': widget.imageUrl,
+          'price': widget.price,
+          'discount': widget.discount,
+          'finalPrice': finalPrice,
+          'quantity': 1,
+          'addedAt': Timestamp.now(),
+        };
+
+        await docRef.set(cartItem);
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Товар добавлен в корзину')),
@@ -84,7 +99,11 @@ class _CartElevatedButtonState extends State<CartElevatedButton> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const HomePage(selectedIndex: 4)), (_)=>false);
+              Navigator.pushAndRemoveUntil(
+                context, 
+                MaterialPageRoute(builder: (_) => const HomePage(selectedIndex: 4)), 
+                (_)=>false
+              );
             },
             child: const Text("Войти"),
           ),

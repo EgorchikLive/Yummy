@@ -36,28 +36,6 @@ class _HeartButtonState extends State<HeartButton> {
     });
   }
 
-  // _loadHeartState() async {
-  // final user = _auth.currentUser;
-  //   if (user != null && widget.id.isNotEmpty) {
-  //     try {
-  //       final doc = await FirebaseFirestore.instance
-  //           .collection('users')
-  //           .doc(user.uid)
-  //           .collection('favorites')
-  //           .doc(widget.id)
-  //           .get();
-
-  //       if (!mounted) return;
-  //       setState(() {
-  //         isLiked = doc.exists;
-  //       });
-  //     } catch (e) {
-  //       debugPrint('Error loading heart state: $e');
-  //     }
-  //   } else {
-  //     debugPrint('⚠️ Invalid state: user is null or widget.id is empty');
-  //   }
-  // }
   _loadHeartState() async {
     final user = _auth.currentUser;
     if (user != null) {
@@ -74,40 +52,6 @@ class _HeartButtonState extends State<HeartButton> {
     }
   }
 
-  // _saveHeartState(bool value) async {
-  //   final user = _auth.currentUser;
-  //   if (user == null) {
-  //     debugPrint('⚠️ No logged-in user — cannot save favorite');
-  //     return;
-  //   }
-
-  //   if (widget.id.isEmpty) {
-  //     debugPrint('⚠️ widget.id is empty — skipping save');
-  //     return;
-  //   }
-
-  //   try {
-  //     final userRef = FirebaseFirestore.instance
-  //         .collection('users')
-  //         .doc(user.uid)
-  //         .collection('favorites')
-  //         .doc(widget.id);
-
-  //     if (value) {
-  //       await userRef.set({
-  //         'id': widget.id,
-  //         'createdAt': FieldValue.serverTimestamp(),
-  //       });
-  //       debugPrint('✅ Added ${widget.id} to favorites');
-  //     } else {
-  //       await userRef.delete();
-  //       debugPrint('❌ Removed ${widget.id} from favorites');
-  //     }
-  //   } catch (e, stack) {
-  //     debugPrint('🔥 Firestore error: $e');
-  //     debugPrint('$stack');
-  //   }
-  // }
   _saveHeartState(bool value) async {
     final user = _auth.currentUser;
     if (user != null) {
