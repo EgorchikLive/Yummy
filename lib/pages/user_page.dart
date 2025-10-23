@@ -286,88 +286,97 @@ class _UserPageState extends State<UserPage> {
   Widget _buildUserProfile(bool isDark) {
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: Column(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Аватарка с возможностью изменения
-          Stack(
-            children: [
-              Container(
-                width: 120,
-                height: 120,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.orange,
-                    width: 3,
-                  ),
-                ),
-                child: ClipOval(
-                  child: _isUploading
-                      ? const Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.orange,
-                          ),
-                        )
-                      : _buildAvatarImage(),
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.orange,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 3,
-                    ),
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.camera_alt, size: 18),
-                    color: Colors.white,
-                    onPressed: _isUploading ? null : _showImagePickerDialog,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-
-          // Имя и email
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _userData!['username'] ?? 'Не указано',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _userData!['email'] ?? 'Не указан',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: isDark ? Colors.grey[400] : Colors.grey[700],
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          // Аватарка слева
+          _buildAvatarSection(),
+          
+          const SizedBox(width: 16),
+          
+          // Имя и email справа
+          Expanded(
+            child: _buildUserInfoSection(isDark),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAvatarSection() {
+    return Stack(
+      children: [
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Colors.orange,
+              width: 2,
+            ),
+          ),
+          child: ClipOval(
+            child: _isUploading
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.orange,
+                    ),
+                  )
+                : _buildAvatarImage(),
+          ),
+        ),
+        Positioned(
+          bottom: 0,
+          right: 0,
+          child: Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: Colors.orange,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white,
+                width: 2,
+              ),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.camera_alt, size: 14),
+              padding: EdgeInsets.zero,
+              color: Colors.white,
+              onPressed: _isUploading ? null : _showImagePickerDialog,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUserInfoSection(bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          _userData!['username'] ?? 'Не указано',
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 2,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          _userData!['email'] ?? 'Не указан',
+          style: TextStyle(
+            fontSize: 16,
+            color: isDark ? Colors.grey[400] : Colors.grey[700],
+          ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 2,
+        ),
+      ],
     );
   }
 
@@ -406,7 +415,7 @@ class _UserPageState extends State<UserPage> {
       color: Colors.grey[300],
       child: const Icon(
         Icons.person,
-        size: 60,
+        size: 40,
         color: Colors.grey,
       ),
     );

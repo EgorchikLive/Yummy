@@ -53,7 +53,6 @@ dependencies:
   http: ^1.1.0
   url_launcher: ^6.2.0
   image_picker: ^1.2.0
-  # file_picker: ^5.6.1
 
 dev_dependencies:
   json_serializable: ^6.8.0
