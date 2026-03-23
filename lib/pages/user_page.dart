@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yummy/controllers/user_controller.dart';
+import 'package:yummy/widgets/CollapsibleOrdersSection.dart';
 import 'package:yummy/widgets/logout_button.dart';
-import 'package:yummy/widgets/orders_header.dart';
-import 'package:yummy/widgets/orders_list.dart';
 import 'package:yummy/widgets/user_profile_section.dart';
 
 class UserPage extends StatefulWidget {
@@ -58,11 +57,13 @@ class _UserPageState extends State<UserPage> {
                     onPickImage: controller.showImagePickerDialog,
                   ),
                   const Divider(),
-                  const OrdersHeader(),
-                  OrdersList(isDark: isDark),
+                  // Заменяем статический список заказов на сворачиваемый
+                  CollapsibleOrdersSection(isDark: isDark),
+                  const SizedBox(height: 16),
                   LogoutButton(onLogout: () async {
                     await controller.logout(context, widget.onLogout);
                   }),
+                  const SizedBox(height: 32), // дополнительный отступ снизу
                 ],
               ),
             );
