@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:yummy/utils/responsive_utils.dart';
 import 'package:yummy/widgets/card_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -10,7 +11,7 @@ class LikePage extends StatefulWidget {
   _LikePageState createState() => _LikePageState();
 }
 
-class _LikePageState extends State<LikePage> {
+class _LikePageState extends State<LikePage> with WidgetsBindingObserver {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
@@ -21,7 +22,21 @@ class _LikePageState extends State<LikePage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadLikedItems();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Future<void> _loadLikedItems() async {
@@ -92,42 +107,49 @@ class _LikePageState extends State<LikePage> {
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : _foodList.isEmpty
-            ? const SingleChildScrollView(
-                physics: AlwaysScrollableScrollPhysics(),
-                child: Center(
-                  heightFactor: 12,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.favorite_border, size: 64, color: Colors.grey),
-                      SizedBox(height: 16),
-                      Text(
-                        'Нет избранных товаров',
-                        style: TextStyle(fontSize: 18, color: Colors.grey),
+                ? const SingleChildScrollView(
+                    physics: AlwaysScrollableScrollPhysics(),
+                    child: Center(
+                      heightFactor: 12,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.favorite_border, size: 64, color: Colors.grey),
+                          SizedBox(height: 16),
+                          Text(
+                            'Нет избранных товаров',
+                            style: TextStyle(fontSize: 18, color: Colors.grey),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Потяните вниз для обновления',
+                            style: TextStyle(fontSize: 14, color: Colors.grey),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 8),
-                      Text(
-                        'Потяните вниз для обновления',
-                        style: TextStyle(fontSize: 14, color: Colors.grey),
-                      ),
-                    ],
+                    ),
+                  )
+                : GridView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(8.0),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: ResponsiveUtils.getCrossAxisCount(context),
+                      crossAxisSpacing: 12.0,
+                      mainAxisSpacing: 12.0,
+                      childAspectRatio: ResponsiveUtils.getCardAspectRatio(context),
+                    ),
+                    itemCount: _foodList.length,
+                    itemBuilder: (context, index) {
+                      return CardPage(
+                        id: _foodList[index]['id'] ?? '',
+                        name: _foodList[index]['name'] ?? 'Без названия',
+                        imageUrl: _foodList[index]['image'] ?? '',
+                        price: _foodList[index]['price'] ?? 0,
+                        discount: _foodList[index]['discount'] ?? 0.0,
+                        description: _foodList[index]['description'] ?? '',
+                      );
+                    },
                   ),
-                ),
-              )
-            : ListView.builder(
-                physics: const AlwaysScrollableScrollPhysics(),
-                itemCount: _foodList.length,
-                itemBuilder: (context, index) {
-                  return CardPage(
-                    id: _foodList[index]['id'] ?? '',
-                    name: _foodList[index]['name'] ?? 'Без названия',
-                    imageUrl: _foodList[index]['image'] ?? '',
-                    price: _foodList[index]['price'] ?? 0,
-                    discount: _foodList[index]['discount'] ?? 0.0,
-                    description: _foodList[index]['description'] ?? '',
-                  );
-                },
-              ),
       ),
     );
   }

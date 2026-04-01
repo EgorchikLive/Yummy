@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yummy/utils/responsive_utils.dart';
 import 'package:yummy/widgets/card_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -9,7 +10,7 @@ class ActionsPage extends StatefulWidget {
   State<ActionsPage> createState() => _ActionsPageState();
 }
 
-class _ActionsPageState extends State<ActionsPage> {
+class _ActionsPageState extends State<ActionsPage> with WidgetsBindingObserver {
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
       
@@ -19,7 +20,21 @@ class _ActionsPageState extends State<ActionsPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadDiscountFoods();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Future<void> _loadDiscountFoods() async {
@@ -91,8 +106,15 @@ class _ActionsPageState extends State<ActionsPage> {
                       ),
                     ),
                   )
-                : ListView.builder(
+                : GridView.builder(
                     physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(8.0),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: ResponsiveUtils.getCrossAxisCount(context),
+                      crossAxisSpacing: 12.0,
+                      mainAxisSpacing: 12.0,
+                      childAspectRatio: ResponsiveUtils.getCardAspectRatio(context),
+                    ),
                     itemCount: _discountFoodList.length,
                     itemBuilder: (context, index) {
                       return CardPage(
